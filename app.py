@@ -18,7 +18,7 @@ import json
 import warnings
 import joblib
 import numpy as np
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 
 # Suppress benign sklearn warnings regarding unpickling across minor versions
 warnings.filterwarnings("ignore")
@@ -349,6 +349,13 @@ def api_random_sample():
     if test_samples:
         return jsonify(random.choice(test_samples))
     return jsonify({"error": "No test samples available"}), 404
+
+
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    """Fallback static asset handler for serverless environments"""
+    static_dir = os.path.join(BASE_DIR, "static")
+    return send_from_directory(static_dir, filename)
 
 
 # ---------------------------------------------------------
