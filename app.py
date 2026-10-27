@@ -33,8 +33,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(
     __name__,
     template_folder=os.path.join(BASE_DIR, 'templates'),
-    static_folder=os.path.join(BASE_DIR, 'static')
+    static_folder=os.path.join(BASE_DIR, 'static'),
+    static_url_path='/static'
 )
+
+@app.context_processor
+def inject_site_assets():
+    """Injects CSS directly into templates to guarantee styling on serverless CDNs"""
+    css_content = ""
+    try:
+        css_path = os.path.join(BASE_DIR, 'static', 'css', 'style.css')
+        with open(css_path, 'r', encoding='utf-8') as f:
+            css_content = f.read()
+    except Exception as e:
+        print(f"Could not read style.css for inline injection: {e}")
+    return dict(inline_css=css_content)
 
 # ---------------------------------------------------------
 # Load Machine Learning Model, Scaler, and Metadata

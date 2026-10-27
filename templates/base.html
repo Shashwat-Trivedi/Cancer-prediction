@@ -13,6 +13,12 @@
   
   <!-- Project Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% if inline_css %}
+  <!-- Server-injected CSS ensures styling renders immediately even if CDN has cold start -->
+  <style id="injected-styles">
+    {{ inline_css | safe }}
+  </style>
+  {% endif %}
 </head>
 <body>
 
