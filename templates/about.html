@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}About Model & Dataset | Breast Cancer Prediction System{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="about-hero">
+  <div class="container">
+    <div class="header-breadcrumbs">
+      <a href="{{ url_for('home') }}">Home</a> &rarr; <span>About Project &amp; Dataset</span>
+    </div>
+    <h1 class="page-title">About the Machine Learning Pipeline</h1>
+    <p class="page-subtitle">
+      A comprehensive breakdown of the Wisconsin Diagnostic Breast Cancer (WDBC) dataset, feature engineering, comparative model benchmarking, and ensemble decision theory.
+    </p>
+  </div>
+</section>
+
+<div class="container about-main-container">
+
+  <!-- Overview Grid with Medical Image -->
+  <section class="about-card intro-card">
+    <div class="intro-grid">
+      <div class="intro-text">
+        <span class="section-eyebrow">Project Context</span>
+        <h2 class="card-heading">Fine Needle Aspiration (FNA) &amp; Digital Cytology</h2>
+        <p>
+          Fine Needle Aspiration (FNA) is a minimally invasive diagnostic biopsy procedure where a thin needle is inserted into a suspicious breast lump to extract a fluid sample of cell clusters. 
+        </p>
+        <p>
+          The extracted cells are placed onto glass slides, stained, and captured digitally under a laboratory microscope. A curve-fitting computer vision algorithm then analyzes the boundary contours of individual cell nuclei, computing 10 fundamental geometric characteristics.
+        </p>
+        <div class="stat-callout-row">
+          <div class="callout-stat">
+            <span class="num">569</span>
+            <span class="label">Patient Samples</span>
+          </div>
+          <div class="callout-stat">
+            <span class="num">357</span>
+            <span class="label">Benign (62.7%)</span>
+          </div>
+          <div class="callout-stat">
+            <span class="num">212</span>
+            <span class="label">Malignant (37.3%)</span>
+          </div>
+          <div class="callout-stat">
+            <span class="num">{{ accuracy }}%</span>
+            <span class="label">Final Accuracy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-image-wrap">
+        <img 
+          src="{{ url_for('static', filename='images/cell_analysis.jpg') }}" 
+          alt="Fine Needle Aspiration Cytology and Cell Nuclei Segmentation" 
+          class="about-img"
+        >
+        <span class="img-caption">Figure 1: Digital cytology segmentation measuring cell nuclei boundary metrics.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- The 30 Features Breakdown -->
+  <section class="about-card">
+    <span class="section-eyebrow">Biomarker Specification</span>
+    <h2 class="card-heading">The 30 Input Cell Nucleus Biomarkers</h2>
+    <p>
+      For each cell nucleus in the digitized biopsy image, 10 core morphological characteristics are measured. 
+      For each characteristic, the dataset provides three values: 
+      <strong>Mean</strong> (average across all cells in sample), 
+      <strong>Standard Error (SE)</strong> (variance and sampling dispersion), and 
+      <strong>Worst</strong> (mean of the three largest, most abnormal cells).
+    </p>
+
+    <div class="features-table-wrapper">
+      <table class="features-table">
+        <thead>
+          <tr>
+            <th>Characteristic</th>
+            <th>Clinical Definition &amp; Significance</th>
+            <th>Cancer Indicator Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Radius</strong></td>
+            <td>Mean distance from the center of the nucleus to points on its boundary.</td>
+            <td><span class="trend high">Larger</span> in malignant tumors due to uncontrolled cell proliferation.</td>
+          </tr>
+          <tr>
+            <td><strong>Texture</strong></td>
+            <td>Standard deviation of gray-scale intensity values across the nucleus.</td>
+            <td><span class="trend high">Rougher / Irregular</span> texture indicates abnormal chromatin distribution.</td>
+          </tr>
+          <tr>
+            <td><strong>Perimeter</strong></td>
+            <td>Total boundary length of the nuclear contour.</td>
+            <td><span class="trend high">Significantly higher</span> in malignant nuclei.</td>
+          </tr>
+          <tr>
+            <td><strong>Area</strong></td>
+            <td>Nuclear surface area computed within boundary limits.</td>
+            <td><span class="trend high">Elevated</span> (> 1000 μm² in malignant vs ~500 μm² in benign).</td>
+          </tr>
+          <tr>
+            <td><strong>Smoothness</strong></td>
+            <td>Local variation in radius lengths along the nuclear envelope.</td>
+            <td><span class="trend high">Irregularities</span> indicate nuclear membrane invaginations.</td>
+          </tr>
+          <tr>
+            <td><strong>Compactness</strong></td>
+            <td>Derived as <code>perimeter² / area - 1.0</code>.</td>
+            <td><span class="trend high">Higher values</span> correspond to non-circular, distorted borders.</td>
+          </tr>
+          <tr>
+            <td><strong>Concavity</strong></td>
+            <td>Severity of concave portions of the contour indentation.</td>
+            <td><span class="trend high">Deep notches</span> are hallmarks of cancerous cellular pleomorphism.</td>
+          </tr>
+          <tr>
+            <td><strong>Concave Points</strong></td>
+            <td>Count of individual concave indentations along the perimeter.</td>
+            <td><span class="trend high">High count</span> strongly correlates with malignancy.</td>
+          </tr>
+          <tr>
+            <td><strong>Symmetry</strong></td>
+            <td>Relative symmetry of the nucleus across orthogonal axes.</td>
+            <td><span class="trend high">Asymmetry</span> indicates dysplastic cellular growth.</td>
+          </tr>
+          <tr>
+            <td><strong>Fractal Dimension</strong></td>
+            <td>Approximation of perimeter boundary complexity ("coastline" approximation).</td>
+            <td><span class="trend high">Chaotic fractal patterns</span> indicate tumor invasiveness.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Model Comparison & Why Random Forest -->
+  <section class="about-card">
+    <span class="section-eyebrow">Machine Learning Evaluation</span>
+    <h2 class="card-heading">Model Comparison &amp; Algorithm Selection</h2>
+    <p>
+      During the model exploration and training phase for this project, multiple supervised machine learning classification algorithms were evaluated on stratified train-test splits (80% training, 20% test).
+    </p>
+
+    <div class="models-comparison-grid">
+      <!-- Model 1: Logistic Regression -->
+      <div class="model-compare-card">
+        <div class="compare-header">
+          <h3 class="model-title">Logistic Regression</h3>
+          <span class="compare-acc">~95.6% Test Acc</span>
+        </div>
+        <p class="compare-desc">
+          Linear baseline model. Fast and highly interpretable, but struggles with multi-collinear and non-linear interactions among the 30 cell measurements.
+        </p>
+        <div class="compare-tag neutral">Baseline Model</div>
+      </div>
+
+      <!-- Model 2: Support Vector Machine (SVM) -->
+      <div class="model-compare-card">
+        <div class="compare-header">
+          <h3 class="model-title">Support Vector Machine</h3>
+          <span class="compare-acc">~96.5% Test Acc</span>
+        </div>
+        <p class="compare-desc">
+          Uses RBF kernel to project into higher dimensional space. Performs well with high accuracy, but probability calibration (Platt scaling) is computationally expensive and less direct.
+        </p>
+        <div class="compare-tag neutral">Strong Competitor</div>
+      </div>
+
+      <!-- Model 3: K-Nearest Neighbors (KNN) -->
+      <div class="model-compare-card">
+        <div class="compare-header">
+          <h3 class="model-title">K-Nearest Neighbors</h3>
+          <span class="compare-acc">~94.7% Test Acc</span>
+        </div>
+        <p class="compare-desc">
+          Distance-based instance classifier. Suffers from the curse of dimensionality across 30 continuous features, leading to higher false-negative rates.
+        </p>
+        <div class="compare-tag neutral">Moderate</div>
+      </div>
+
+      <!-- Model 4: Random Forest (Chosen) -->
+      <div class="model-compare-card chosen">
+        <div class="chosen-badge">Selected Best Model</div>
+        <div class="compare-header">
+          <h3 class="model-title">{{ model_name }}</h3>
+          <span class="compare-acc highlight">{{ accuracy }}% Test Acc</span>
+        </div>
+        <p class="compare-desc">
+          An ensemble of diverse, bootstrapped decision trees. Outperformed all candidate models across Accuracy, ROC-AUC, and critical False-Negative reduction.
+        </p>
+        <div class="compare-tag success">Optimal Balance</div>
+      </div>
+    </div>
+
+    <!-- Why Chosen Explanations -->
+    <div class="why-chosen-box">
+      <h3 class="why-title">Why Random Forest Was Chosen as the Final Model</h3>
+      <div class="reasons-grid">
+        <div class="reason-item">
+          <div class="reason-icon">🛡️</div>
+          <div>
+            <strong>Resistance to Overfitting:</strong>
+            <p>Bagging (Bootstrap Aggregation) combines predictions from hundreds of uncorrelated decision trees, averaging out individual variance and noise.</p>
+          </div>
+        </div>
+
+        <div class="reason-item">
+          <div class="reason-icon">⚡</div>
+          <div>
+            <strong>Handles Collinear Features:</strong>
+            <p>Features like Radius, Perimeter, and Area have natural correlation. Random Forest selects random feature subsets at each split, preventing redundant features from dominating.</p>
+          </div>
+        </div>
+
+        <div class="reason-item">
+          <div class="reason-icon">📊</div>
+          <div>
+            <strong>Calibrated Confidence (predict_proba):</strong>
+            <p>Provides an intuitive confidence score based on the proportion of trees voting for the predicted diagnosis, giving clinical users transparency into algorithmic certainty.</p>
+          </div>
+        </div>
+
+        <div class="reason-item">
+          <div class="reason-icon">🩺</div>
+          <div>
+            <strong>High Sensitivity (Low False Negatives):</strong>
+            <p>In oncology screening, missing a malignant tumor (Type II Error) is far more dangerous than a false alarm. Random Forest demonstrated near-zero false negatives on testing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deployment & Architecture -->
+  <section class="about-card">
+    <span class="section-eyebrow">Cloud Architecture</span>
+    <h2 class="card-heading">Full-Stack Cloud &amp; Serverless Deployment</h2>
+    <div class="architecture-pills">
+      <span class="tech-pill">Python 3.12</span>
+      <span class="tech-pill">Flask WSGI</span>
+      <span class="tech-pill">scikit-learn 1.6</span>
+      <span class="tech-pill">Joblib Serialization</span>
+      <span class="tech-pill">StandardScaler</span>
+      <span class="tech-pill">Vercel Serverless</span>
+      <span class="tech-pill">Responsive Vanilla CSS</span>
+    </div>
+
+    <div class="callout-actions mt-4">
+      <a href="{{ url_for('predict') }}" class="btn btn-primary">
+        Test The Classifier Now 🔬
+      </a>
+      <a href="{{ url_for('home') }}" class="btn btn-outline">
+        Back to Home
+      </a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}

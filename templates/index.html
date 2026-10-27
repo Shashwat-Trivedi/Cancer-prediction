@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Breast Cancer Prediction System | AI Clinical Screener{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container hero-container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-icon">🔬</span>
+        <span>Machine Learning in Healthcare • College Mini Project</span>
+      </div>
+      
+      <h1 class="hero-title">
+        Breast Cancer <br>
+        <span class="highlight-text">Prediction System</span>
+      </h1>
+      
+      <p class="hero-desc">
+        An interactive, clinical-grade diagnostic assistance demonstration powered by a 
+        <strong>{{ accuracy }}% accurate {{ model_name }}</strong>. 
+        Analyze 30 fine-needle aspirate cell nuclei features to determine if a breast mass is 
+        <span class="tag-benign">Benign</span> or <span class="tag-malignant">Malignant</span> in real-time.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg" id="hero-start-btn">
+          <span>Start Prediction</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+
+        <a href="{{ url_for('about') }}" class="btn btn-outline btn-lg" id="hero-about-btn">
+          <span>About Model &amp; Dataset</span>
+        </a>
+      </div>
+
+      <!-- Quick Metrics Highlights -->
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-number">{{ accuracy }}%</div>
+          <div class="stat-label">Model Test Accuracy</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">{{ features_count }}</div>
+          <div class="stat-label">Biomarker Inputs</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">569</div>
+          <div class="stat-label">Wisconsin Cases</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Image / Visual Card -->
+    <div class="hero-visual">
+      <div class="visual-card">
+        <div class="image-wrapper">
+          <img 
+            src="{{ url_for('static', filename='images/hero.jpg') }}" 
+            alt="AI Oncology and Breast Cancer Prediction Platform" 
+            class="hero-img"
+            loading="eager"
+          >
+          <div class="image-overlay-badge">
+            <span class="status-indicator"></span>
+            <span>Real-Time Biopsy Inference</span>
+          </div>
+        </div>
+        <div class="visual-card-footer">
+          <div class="model-pill">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+            <span>Model: {{ model_name }}</span>
+          </div>
+          <span class="ready-tag">Production Ready</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section how-it-works">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-eyebrow">Diagnostic Workflow</span>
+      <h2 class="section-title">How The Prediction System Works</h2>
+      <p class="section-subtitle">
+        A seamless three-stage machine learning inference pipeline designed for clinical clarity and high predictive fidelity.
+      </p>
+    </div>
+
+    <div class="steps-grid">
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <h3 class="step-title">Biomarker Feature Extraction</h3>
+        <p class="step-desc">
+          Fine Needle Aspirate (FNA) slide images of breast mass cell nuclei are digitized to record 30 geometric dimensions (radius, texture, perimeter, area, concavity).
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <h3 class="step-title">StandardScaler Normalization</h3>
+        <p class="step-desc">
+          Features have wildly differing scales (e.g. area > 2000 vs fractal dimension < 0.1). Preprocessing standardizes each feature using saved training z-scores.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h3 class="step-title">Random Forest Inference</h3>
+        <p class="step-desc">
+          An ensemble of decision trees votes on the class outcome (Benign vs. Malignant) and outputs an exact probability confidence percentage.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sample Demo Callout -->
+<section class="section demo-callout">
+  <div class="container">
+    <div class="callout-card">
+      <div class="callout-content">
+        <span class="section-eyebrow text-teal">Ready for Demo?</span>
+        <h2 class="callout-title">Fast 1-Click Evaluation for Academic Presentation</h2>
+        <p class="callout-desc">
+          Don't have biopsy metrics on hand? Our tool includes built-in real benign and malignant cases so you can demonstrate the model live to professors and peers in seconds.
+        </p>
+        <div class="callout-actions">
+          <a href="{{ url_for('predict') }}" class="btn btn-primary" id="callout-predict-btn">
+            Open Predict Tool 🔬
+          </a>
+          <a href="{{ url_for('about') }}" class="btn btn-ghost">
+            Read Model Documentation &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div class="callout-preview">
+        <div class="preview-box">
+          <div class="preview-header">
+            <span class="preview-badge benign">Sample: Benign Case</span>
+            <span class="preview-conf">100.0% Confidence</span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-row"><span>Radius Mean:</span><strong>13.54 μm</strong></div>
+            <div class="preview-row"><span>Perimeter Mean:</span><strong>87.46 μm</strong></div>
+            <div class="preview-row"><span>Area Mean:</span><strong>566.30 μm²</strong></div>
+            <div class="preview-row"><span>Concavity Mean:</span><strong>0.0666</strong></div>
+          </div>
+        </div>
+
+        <div class="preview-box">
+          <div class="preview-header">
+            <span class="preview-badge malignant">Sample: Malignant Case</span>
+            <span class="preview-conf">95.0% Confidence</span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-row"><span>Radius Mean:</span><strong>17.99 μm</strong></div>
+            <div class="preview-row"><span>Perimeter Mean:</span><strong>122.80 μm</strong></div>
+            <div class="preview-row"><span>Area Mean:</span><strong>1001.00 μm²</strong></div>
+            <div class="preview-row"><span>Concavity Mean:</span><strong>0.3001</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

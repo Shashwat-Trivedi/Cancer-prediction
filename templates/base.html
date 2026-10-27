@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Breast Cancer Prediction System{% endblock %}</title>
+  <meta name="description" content="College Mini Project: Intelligent Clinical Breast Cancer Risk Classifier powered by Random Forest and Wisconsin Dataset.">
+  
+  <!-- Modern Clean Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Project Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Top Disclaimer Notice -->
+  <aside class="disclaimer-banner" role="complementary" aria-label="Educational Disclaimer">
+    <div class="container disclaimer-content">
+      <div class="disclaimer-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span>Educational Demo</span>
+      </div>
+      <p class="disclaimer-text">
+        <strong>Academic Disclaimer:</strong> This tool is developed strictly for educational purposes and is <u>not</u> a substitute for clinical or medical diagnosis. Always consult certified healthcare professionals.
+      </p>
+    </div>
+  </aside>
+
+  <!-- Navigation Bar -->
+  <header class="navbar" id="site-header">
+    <div class="container navbar-inner">
+      <a href="{{ url_for('home') }}" class="brand-logo" id="nav-brand">
+        <div class="logo-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M2 12h20M7 7l10 10M17 7L7 17"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">OncoPredict<span class="brand-ai">AI</span></span>
+          <span class="brand-subtitle">Breast Cancer Classifier</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" id="main-nav">
+        <a href="{{ url_for('home') }}" class="nav-link {% if request.path == '/' %}active{% endif %}" id="nav-home">Home</a>
+        <a href="{{ url_for('predict') }}" class="nav-link {% if request.path == '/predict' %}active{% endif %}" id="nav-predict">Predict Tool</a>
+        <a href="{{ url_for('about') }}" class="nav-link {% if request.path == '/about' %}active{% endif %}" id="nav-about">About Model</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary btn-sm" id="nav-cta-btn">
+          <span>Start Prediction</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main class="page-body">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col brand-col">
+          <div class="footer-brand">
+            <div class="logo-icon-wrap sm">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M2 12h20"></path>
+              </svg>
+            </div>
+            <span class="footer-brand-title">OncoPredict AI</span>
+          </div>
+          <p class="footer-desc">
+            A machine learning web system demonstrating clinical classification of Fine Needle Aspiration (FNA) cell biopsy metrics.
+          </p>
+          <div class="project-pill">
+            <span class="pulse-dot"></span>
+            <span>College Mini Project • AIML &amp; Cloud</span>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Navigation</h4>
+          <ul class="footer-nav-list">
+            <li><a href="{{ url_for('home') }}">Home Page</a></li>
+            <li><a href="{{ url_for('predict') }}">Run Prediction</a></li>
+            <li><a href="{{ url_for('about') }}">Model Documentation</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Model Specs</h4>
+          <ul class="footer-info-list">
+            <li><strong>Algorithm:</strong> Random Forest Classifier</li>
+            <li><strong>Accuracy:</strong> 97.37% (Test Set)</li>
+            <li><strong>Features:</strong> 30 Cellular Biomarkers</li>
+            <li><strong>Dataset:</strong> Wisconsin Diagnostic (WDBC)</li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Ethics &amp; Safety</h4>
+          <p class="footer-text-muted">
+            This tool is intended strictly for academic demonstration and machine learning research. It does not provide medical diagnosis.
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Breast Cancer Prediction Project. Built with Flask, scikit-learn, and vanilla HTML/CSS/JS.</p>
+        <p class="footer-badge">Vercel Ready Deployment</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

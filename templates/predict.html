@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Predict Breast Cancer Risk | Clinical Screening Tool{% endblock %}
+
+{% block content %}
+<section class="predict-page-header">
+  <div class="container">
+    <div class="header-breadcrumbs">
+      <a href="{{ url_for('home') }}">Home</a> &rarr; <span>Prediction Tool</span>
+    </div>
+    <h1 class="page-title">Breast Cancer Risk Assessment</h1>
+    <p class="page-subtitle">
+      Enter the 30 cell nucleus measurements extracted from Fine Needle Aspiration (FNA) biopsy, or load sample patient data to run live machine learning classification.
+    </p>
+  </div>
+</section>
+
+<div class="container main-predict-container">
+
+  <!-- ==================================================== -->
+  <!-- 3. RESULT SECTION (Displayed when result is present)  -->
+  <!-- ==================================================== -->
+  {% if result %}
+  <section class="result-section" id="prediction-result" aria-live="polite">
+    <div class="result-card result-{{ result.status }}">
+      <div class="result-card-header">
+        <div class="result-status-icon">
+          {% if result.status == 'malignant' %}
+          <!-- Malignant Warning Icon -->
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          {% else %}
+          <!-- Benign Check Icon -->
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          {% endif %}
+        </div>
+
+        <div class="result-title-group">
+          <span class="result-eyebrow">Diagnostic Assessment Result</span>
+          <!-- Exact user-specified strings: "Malignant (Cancer detected)" in red or "Benign (No cancer detected)" in green -->
+          <h2 class="result-main-title {% if result.status == 'malignant' %}text-malignant{% else %}text-benign{% endif %}">
+            {{ result.label }}
+          </h2>
+        </div>
+
+        <div class="result-badge-pill {% if result.status == 'malignant' %}pill-malignant{% else %}pill-benign{% endif %}">
+          {{ result.risk_level }}
+        </div>
+      </div>
+
+      <div class="result-grid">
+        <!-- Confidence Gauge / Bar Card -->
+        <div class="result-metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Prediction Confidence</span>
+            <span class="metric-value font-mono">{{ result.confidence }}%</span>
+          </div>
+
+          <!-- Small Confidence Bar Gauge -->
+          <div class="gauge-bar-track">
+            <div 
+              class="gauge-bar-fill {% if result.status == 'malignant' %}gauge-malignant{% else %}gauge-benign{% endif %}" 
+              style="width: {{ result.confidence }}%;"
+            ></div>
+          </div>
+
+          <div class="metric-breakdown">
+            <div class="breakdown-item">
+              <span class="dot dot-benign"></span>
+              <span>Benign Probability: <strong>{{ result.proba_benign }}%</strong></span>
+            </div>
+            <div class="breakdown-item">
+              <span class="dot dot-malignant"></span>
+              <span>Malignant Probability: <strong>{{ result.proba_malignant }}%</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model Metadata Card (from model_info.json) -->
+        <div class="result-metric-card">
+          <div class="metric-top">
+            <span class="metric-label">Model Verification</span>
+            <span class="badge-verified">Verified</span>
+          </div>
+          <div class="model-meta-list">
+            <div class="meta-row">
+              <span class="meta-title">Classifier Name:</span>
+              <span class="meta-data font-mono">{{ result.model_name }}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-title">Model Test Accuracy:</span>
+              <span class="meta-data font-mono highlight">{{ result.test_accuracy }}%</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-title">Preprocessing:</span>
+              <span class="meta-data">StandardScaler (Applied)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clinical Recommendation Notice -->
+      <div class="result-footer-advice">
+        <div class="advice-icon">💡</div>
+        <div class="advice-content">
+          <strong>Clinical Note:</strong> {{ result.recommendation }}
+          <span class="advice-sub">This calculation is an algorithmic prediction on numeric biomarkers and not a primary histological diagnosis.</span>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline" onclick="scrollToForm()">
+          Modify Inputs &darr;
+        </button>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Error Alert Banner -->
+  {% if error %}
+  <div class="alert alert-danger" role="alert" id="form-error-alert">
+    <div class="alert-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="alert-text">
+      <strong>Submission Error:</strong> {{ error }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ==================================================== -->
+  <!-- 2. PREDICTION FORM SECTION                           -->
+  <!-- ==================================================== -->
+  <section class="form-container-card" id="form-section">
+    <!-- Quick Demo Bar -->
+    <div class="sample-data-toolbar">
+      <div class="toolbar-info">
+        <span class="toolbar-label">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Quick Demo Autofill:
+        </span>
+        <span class="toolbar-hint">Load real verified cases from the Wisconsin dataset with 1 click:</span>
+      </div>
+
+      <div class="toolbar-buttons">
+        <!-- New Test Values Button (Cycles to a fresh patient case on every click) -->
+        <button 
+          type="button" 
+          class="btn btn-sample btn-sample-random" 
+          id="btn-fill-random"
+          onclick="fillRandomTestCase()"
+          title="Click as many times as you like - every click fills all 30 fields with fresh test values!"
+        >
+          <span class="dice-icon">🎲</span>
+          <span class="btn-text">Fill New Test Values</span>
+          <span class="sample-counter-pill" id="sample-case-badge">30 Cases Available</span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-sample btn-sample-benign" 
+          id="btn-fill-benign"
+          onclick="fillSampleData('benign')"
+          title="Load standard Benign (Healthy) test case"
+        >
+          <span class="sample-dot benign"></span>
+          <span>Sample Benign</span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-sample btn-sample-malignant" 
+          id="btn-fill-malignant"
+          onclick="fillSampleData('malignant')"
+          title="Load standard Malignant (High Risk) test case"
+        >
+          <span class="sample-dot malignant"></span>
+          <span>Sample Malignant</span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn btn-ghost btn-sm" 
+          id="btn-clear-form"
+          onclick="clearAllInputs()"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Dynamic Alert Showing Loaded Case Profile -->
+    <div class="sample-loaded-banner" id="sample-status-banner" style="display: none;">
+      <div class="banner-content">
+        <span class="banner-icon" id="sample-status-icon">✨</span>
+        <div class="banner-text">
+          <strong id="sample-status-title">Loaded Test Case:</strong>
+          <span id="sample-status-desc">All 30 fields updated. Click "Fill New Test Values" again to cycle to another case!</span>
+        </div>
+      </div>
+      <button type="button" class="banner-close" onclick="closeSampleBanner()">&times;</button>
+    </div>
+
+    <!-- Category Filter Tabs for Easy Navigation -->
+    <div class="category-tabs" role="tablist">
+      <button type="button" class="cat-tab active" data-target="all" onclick="filterCategory('all', this)">
+        All 30 Biomarkers
+      </button>
+      <button type="button" class="cat-tab" data-target="Mean Values" onclick="filterCategory('Mean Values', this)">
+        Mean Values (1-10)
+      </button>
+      <button type="button" class="cat-tab" data-target="Standard Error (SE)" onclick="filterCategory('Standard Error (SE)', this)">
+        Standard Error (11-20)
+      </button>
+      <button type="button" class="cat-tab" data-target="Extreme / Worst Values" onclick="filterCategory('Extreme / Worst Values', this)">
+        Extreme / Worst (21-30)
+      </button>
+    </div>
+
+    <!-- Main Form -->
+    <form action="{{ url_for('predict') }}" method="POST" id="prediction-form" onsubmit="return validateForm(event)">
+      
+      <div class="features-form-grid" id="features-container">
+        <!-- Dynamically generated fields in the exact order of model_info.json -->
+        {% for feat in features %}
+        <div class="feature-input-group" data-group="{{ feat.group }}" id="group-{{ feat.name }}">
+          <div class="input-label-row">
+            <label for="input-{{ feat.name }}" class="feature-label">
+              {{ feat.label }}
+              {% if feat.unit %}<span class="unit-text">({{ feat.unit }})</span>{% endif %}
+            </label>
+            <span class="feature-code font-mono">{{ feat.name }}</span>
+          </div>
+
+          <div class="input-wrapper">
+            <input 
+              type="number" 
+              step="any" 
+              class="form-control font-mono" 
+              id="input-{{ feat.name }}" 
+              name="{{ feat.name }}" 
+              value="{{ form_values.get(feat.name, '') }}"
+              placeholder="e.g. 0.00" 
+              required
+            >
+          </div>
+          <small class="feature-hint">{{ feat.desc }}</small>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-submit-panel">
+        <div class="submit-info">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>All 30 inputs are normalized via <strong>StandardScaler</strong> before inference.</span>
+        </div>
+
+        <div class="submit-actions-group">
+          <button type="button" class="btn btn-outline" id="btn-bottom-random" onclick="fillRandomTestCase()" title="Load another random test sample">
+            <span class="dice-icon">🎲</span>
+            <span>New Test Values</span>
+          </button>
+          
+          <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-predict">
+            <span>Run Prediction</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+
+<!-- Embedded sample datasets for instant client-side autofill -->
+<script id="sample-data-json" type="application/json">
+{{ sample_cases | tojson | safe }}
+</script>
+
+<!-- Embedded collection of 30 authentic test cases for continuous new value generation -->
+<script id="test-samples-json" type="application/json">
+{{ test_samples | tojson | safe }}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Smooth scroll to results if present on page load
+  document.addEventListener("DOMContentLoaded", function() {
+    var resultEl = document.getElementById("prediction-result");
+    if (resultEl) {
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  function scrollToForm() {
+    var formEl = document.getElementById("form-section");
+    if (formEl) {
+      formEl.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+</script>
+{% endblock %}
